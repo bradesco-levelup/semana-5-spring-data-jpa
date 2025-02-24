@@ -1,31 +1,26 @@
 package br.com.alura.clientelo.menu;
 
 import br.com.alura.clientelo.pedido.Pedido;
-import br.com.alura.clientelo.pedido.RepositorioDePedidos;
+import br.com.alura.clientelo.pedido.PedidoRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Component
 @AllArgsConstructor
 public class ClientesMaisFieisCommand implements FuncionalidadeCommand {
 
-    private RepositorioDePedidos repositorioDePedidos;
+    private PedidoRepository pedidoRepository;
 
     @Override
     public void executa() {
-        Map<String, Long> clientesMaisFieis = repositorioDePedidos.listaTodos()
-                .stream()
-                .collect(Collectors.groupingBy(Pedido::getCliente, Collectors.counting()));
-
-        clientesMaisFieis.entrySet()
-                .stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
-                        .thenComparing(Map.Entry.comparingByKey()))
-                .forEach(entry -> {
-                    System.out.println("Nº DE PEDIDOS: " + entry.getValue());
-                    System.out.println("NOME: " + entry.getKey());
+        pedidoRepository.listaClientesMaisFieis()
+                .forEach(clienteFiel -> {
+                    System.out.println("Nº DE PEDIDOS: " + clienteFiel.getQuantidadeDePedidosFeitos());
+                    System.out.println("NOME: " + clienteFiel.getNome());
                     System.out.println();
                 });
     }

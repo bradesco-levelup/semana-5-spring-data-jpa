@@ -1,17 +1,25 @@
 package br.com.alura.clientelo.menu;
 
-import br.com.alura.clientelo.pedido.RepositorioDePedidos;
+import br.com.alura.clientelo.pedido.Pedido;
+import br.com.alura.clientelo.pedido.PedidoRepository;
 import br.com.alura.clientelo.relatorio.RelatorioSintetico;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+@Component
 @AllArgsConstructor
 public class RelatorioSinteticoCommand implements FuncionalidadeCommand {
 
-    private RepositorioDePedidos repositorioDePedidos;
+    private PedidoRepository pedidoRepository;
 
     @Override
+    @Transactional
     public void executa() {
-        RelatorioSintetico relatorioSintetico = RelatorioSintetico.geraRelatorio(repositorioDePedidos.listaTodos());
+        List<Pedido> pedidos = pedidoRepository.findAll();
+        RelatorioSintetico relatorioSintetico = RelatorioSintetico.geraRelatorio(pedidos);
         relatorioSintetico.exibir();
     }
 

@@ -1,27 +1,30 @@
 package br.com.alura.clientelo.menu;
 
 import br.com.alura.clientelo.pedido.Pedido;
-import br.com.alura.clientelo.pedido.RepositorioDePedidos;
+import br.com.alura.clientelo.pedido.PedidoRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Scanner;
 
+@Component
 @AllArgsConstructor
 public class ExcluirPedidoCommand implements FuncionalidadeCommand {
 
-    private RepositorioDePedidos repositorioDePedidos;
+    private Scanner scanner;
+    private PedidoRepository pedidoRepository;
 
+    @Transactional
     @Override
     public void executa() {
-        Scanner scanner = new Scanner(System.in);
-        
-        System.out.print("Digite o índice do pedido que deseja excluir: ");
-        int indice = scanner.nextInt();
+        System.out.print("Digite o id do pedido que deseja excluir: ");
+        Long idDoPedido = scanner.nextLong();
         scanner.nextLine();
 
         try {
-            Pedido pedidoExcluido = repositorioDePedidos.excluiPorIndice(indice);
-            System.out.println("Pedido excluído: " + pedidoExcluido);
+            pedidoRepository.deleteById(idDoPedido);
+            System.out.println("Pedido excluído!");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }

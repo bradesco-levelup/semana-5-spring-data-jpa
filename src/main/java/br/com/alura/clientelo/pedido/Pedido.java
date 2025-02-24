@@ -1,47 +1,42 @@
 package br.com.alura.clientelo.pedido;
 
+import br.com.alura.clientelo.cliente.Cliente;
+import br.com.alura.clientelo.produto.Categoria;
+import br.com.alura.clientelo.produto.Produto;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
+@Entity
+@Data
+@NoArgsConstructor
 public class Pedido {
 
-    private String categoria;
-    private String produto;
-    private String cliente;
-
-    private BigDecimal preco;
-    private int quantidade;
-
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private LocalDate data;
 
-    public Pedido(String categoria, String produto, String cliente, BigDecimal preco, int quantidade, LocalDate data) {
-        this.categoria = categoria;
-        this.produto = produto;
+    @ManyToOne
+    private Cliente cliente;
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemDePedido> itens = new ArrayList<>();
+
+    public Pedido(LocalDate data, Cliente cliente) {
         this.cliente = cliente;
-        this.preco = preco;
-        this.quantidade = quantidade;
         this.data = data;
     }
 
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public String getProduto() {
-        return produto;
-    }
-
-    public String getCliente() {
+    public Cliente getCliente() {
         return cliente;
-    }
-
-    public BigDecimal getPreco() {
-        return preco;
-    }
-
-    public int getQuantidade() {
-        return quantidade;
     }
 
     public LocalDate getData() {
@@ -49,20 +44,10 @@ public class Pedido {
     }
 
     public BigDecimal getValorTotal() {
-        return preco.multiply(BigDecimal.valueOf(quantidade))
+        return itens.stream()
+                .map(ItemDePedido::getValorTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    @Override
-    public String toString() {
-        return "Pedido{" +
-                "categoria='" + categoria + '\'' +
-                ", produto='" + produto + '\'' +
-                ", cliente='" + cliente + '\'' +
-                ", preco=" + preco +
-                ", quantidade=" + quantidade +
-                ", data=" + data +
-                '}';
     }
 
     public boolean isMaisBaratoQue(Pedido outroPedido) {
@@ -71,5 +56,26 @@ public class Pedido {
 
     public boolean isMaisCaroQue(Pedido outroPedido) {
         return getValorTotal().compareTo(outroPedido.getValorTotal()) > 0;
+    }
+
+    public int getQuantidadeDeProdudosVendidos() {
+        return itens.stream()
+                .mapToInt(ItemDePedido::getQuantidade)
+                .sum();
+    }
+
+    public Collection<String> getCategorias() {
+        return itens.stream()
+                .map(ItemDePedido::getProduto)
+                .map(Produto::getCategoria)
+                .map(Categoria::getNome)
+                .collect(Collectors.toSet());
+    }
+
+    public ItemDePedido adicionaItem(Produto produto, int quantidade) {
+        ItemDePedido item = new ItemDePedido(this, produto, quantidade);
+        itens.add(item);
+
+        return item;
     }
 }

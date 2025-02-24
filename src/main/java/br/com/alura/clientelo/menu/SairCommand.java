@@ -1,5 +1,8 @@
 package br.com.alura.clientelo.menu;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class SairCommand implements FuncionalidadeCommand {
 
     @Override

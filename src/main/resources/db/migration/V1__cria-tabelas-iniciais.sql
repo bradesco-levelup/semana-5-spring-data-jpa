@@ -25,7 +25,7 @@ create table produto (
 create table pedido (
     id bigserial not null,
     cliente_id bigint not null,
-    data timestamp not null default current_timestamp,
+    data date not null default current_timestamp,
 
     constraint pk_pedido primary key (id),
     constraint fk_pedido_cliente foreign key (cliente_id) references cliente(id)

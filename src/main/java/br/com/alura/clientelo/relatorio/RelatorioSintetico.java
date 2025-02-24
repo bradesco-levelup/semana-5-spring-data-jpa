@@ -3,7 +3,6 @@ package br.com.alura.clientelo.relatorio;
 import br.com.alura.clientelo.pedido.Pedido;
 import br.com.alura.clientelo.utils.FormatUtils;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -46,9 +45,9 @@ public class RelatorioSintetico {
             }
 
             montanteDeVendas = montanteDeVendas.add(pedidoAtual.getValorTotal());
-            totalDeProdutosVendidos += pedidoAtual.getQuantidade();
+            totalDeProdutosVendidos += pedidoAtual.getQuantidadeDeProdudosVendidos();
 
-            categoriasProcessadas.add(pedidoAtual.getCategoria());
+            categoriasProcessadas.addAll(pedidoAtual.getCategorias());
         }
 
         return new RelatorioSintetico(
@@ -73,18 +72,11 @@ public class RelatorioSintetico {
         System.out.println("MONTANTE DE VENDAS: " + FormatUtils.formataParaReal(montanteDeVendas));
         System.out.println();
 
-        System.out.println("PEDIDO MAIS BARATO: " + getDescricaoDoPedido(pedidoMaisBarato));
-        System.out.println("PEDIDO MAIS CARO: " + getDescricaoDoPedido(pedidoMaisCaro));
+        System.out.println("PEDIDO MAIS BARATO: " + FormatUtils.formataParaReal(pedidoMaisBarato.getValorTotal()));
+        System.out.println("PEDIDO MAIS CARO: " + FormatUtils.formataParaReal(pedidoMaisCaro.getValorTotal()));
         System.out.println();
 
         System.out.println("### FIM DO RELATÓRIO ###");
     }
 
-    private String getDescricaoDoPedido(Pedido pedido) {
-        if (pedido == null) {
-            return "R$ 0,00";
-        }
-
-        return FormatUtils.formataParaReal(pedido.getValorTotal()) + " (" + pedido.getProduto() + ")";
-    }
 }

@@ -1,31 +1,26 @@
 package br.com.alura.clientelo.menu;
 
-import br.com.alura.clientelo.pedido.Pedido;
-import br.com.alura.clientelo.pedido.RepositorioDePedidos;
+import br.com.alura.clientelo.pedido.PedidoRepository;
+import br.com.alura.clientelo.pedido.ProdutoMaisVendido;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.List;
 
+@Component
 @AllArgsConstructor
 public class ProdutosMaisVendidosCommand implements FuncionalidadeCommand {
 
-    private RepositorioDePedidos repositorioDePedidos;
+    private final PedidoRepository pedidoRepository;
 
+    @Transactional
     @Override
     public void executa() {
-        Map<String, Integer> produtosAgrupados = repositorioDePedidos.listaTodos()
-                .stream()
-                .collect(Collectors.groupingBy(Pedido::getProduto, Collectors.summingInt(Pedido::getQuantidade)));
-
-        produtosAgrupados.entrySet()
-                .stream()
-                .sorted(Comparator.comparing(Map.Entry::getValue, Comparator.reverseOrder()))
-                .limit(3)
-                .forEach(entry -> {
-                    System.out.println("PRODUTO: " + entry.getKey());
-                    System.out.println("QUANTIDADE: " + entry.getValue());
+        pedidoRepository.listaProdutosMaisVendidos()
+                .forEach(produtoMaisVendido -> {
+                    System.out.println("PRODUTO: " + produtoMaisVendido.getNome());
+                    System.out.println("QUANTIDADE: " + produtoMaisVendido.getQuantidade());
                     System.out.println();
                 });
     }

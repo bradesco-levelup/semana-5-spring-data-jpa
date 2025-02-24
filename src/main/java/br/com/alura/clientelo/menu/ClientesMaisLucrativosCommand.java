@@ -1,42 +1,20 @@
 package br.com.alura.clientelo.menu;
 
-import br.com.alura.clientelo.pedido.ClienteLucrativo;
-import br.com.alura.clientelo.pedido.Pedido;
-import br.com.alura.clientelo.pedido.RepositorioDePedidos;
+import br.com.alura.clientelo.pedido.PedidoRepository;
 import br.com.alura.clientelo.utils.FormatUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+@Component
 @AllArgsConstructor
 public class ClientesMaisLucrativosCommand implements FuncionalidadeCommand {
 
-    private RepositorioDePedidos repositorioDePedidos;
+    private PedidoRepository pedidoRepository;
 
     @Override
     public void executa() {
-        Map<String, List<Pedido>> pedidosPorCliente = repositorioDePedidos.listaTodos()
-                .stream()
-                .collect(Collectors.groupingBy(Pedido::getCliente));
 
-        pedidosPorCliente.entrySet()
-                .stream()
-                .map(entry -> {
-                    String cliente = entry.getKey();
-                    List<Pedido> pedidos = entry.getValue();
-
-                    int numeroDePedidos = pedidos.size();
-                    BigDecimal montanteGasto = pedidos.stream()
-                            .map(Pedido::getValorTotal)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                    return new ClienteLucrativo(cliente, numeroDePedidos, montanteGasto);
-                })
-                .sorted(Comparator.comparing(ClienteLucrativo::getMontanteGasto).reversed())
+        pedidoRepository.listaClientesMaisLucrativos()
                 .forEach(clienteRelatorio -> {
                     System.out.println("NOME: " + clienteRelatorio.getNome());
                     System.out.println("Nº DE PEDIDOS: " + clienteRelatorio.getNumeroDePedidos());
